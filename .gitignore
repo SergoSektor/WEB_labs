@@ -1,0 +1,2 @@
+
+# Python\n__pycache__/\n*.pyc\n*.log\n*.sqlite3\n.env\nvirtualenv/\nvirt/\venv/\n\n# Django\n*.pot\n*.mo\n*.po\n\n# IDE\n.vscode/\n.idea/\n\n# OS\n.DS_Store\nthumbs.db\n

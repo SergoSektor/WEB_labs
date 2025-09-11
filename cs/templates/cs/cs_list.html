@@ -1,0 +1,20 @@
+{% extends 'cs/base.html' %}
+
+{% block title %}Темы - Компьютерные науки{% endblock %}
+{% block heading %}Список тем{% endblock %}
+
+{% block content %}
+  <p>Ниже представлен список тем в области компьютерных наук.</p>
+  {% if cs_topics %}
+    <ul>
+      {% for topic in cs_topics %}
+        <li>
+          <strong>{{ topic.name }}</strong> – {{ topic.description|truncatewords:20 }}
+          <a href="{% url 'cs_detail' topic.id %}">Подробнее</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Темы не найдены.</p>
+  {% endif %}
+{% endblock %}
