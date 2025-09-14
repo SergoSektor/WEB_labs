@@ -5,7 +5,25 @@
 {% block content %}
   <h2>{{ concept.title }}</h2>
   <p>Сложность: {{ concept.difficulty }}</p>
+  {% if concept.field_of_study %}
+    <p>Область науки: {{ concept.field_of_study.name }}</p>
+  {% endif %}
   <div>
       {{ concept.description|linebreaks }}
   </div>
+
+  {% if concept.tags.all %}
+    <p>Теги:
+      {% for tag in concept.tags.all %}
+        <a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+
+  {% if concept.detail %}
+    <h3>Дополнительная информация:</h3>
+    <p>Ключевые технологии: {{ concept.detail.core_technologies }}</p>
+    <p>Предварительные условия: {{ concept.detail.prerequisites }}</p>
+    <p>Примерное время изучения: {{ concept.detail.estimated_learning_time }} часов</p>
+  {% endif %}
 {% endblock %}

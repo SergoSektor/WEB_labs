@@ -16,6 +16,8 @@ urlpatterns = [
     path('go-home/', views.redirect_example, name='go_home'),
     path('hello/', views.get_params_example, name='hello'),
     path('category/<int:cat_id>/', views.category, name='category'),
+    path('tags/', views.tags_list, name='tags_list'),
+    path('tag/<slug:tag_slug>/', views.concepts_by_tag, name='concepts_by_tag'),
 ]
 
 handler404 = 'cs.views.custom_404'

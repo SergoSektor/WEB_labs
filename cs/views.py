@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
-from .models import ComputerScienceConcept # Импортируем нашу новую модель
+from .models import ComputerScienceConcept, Tag # Импортируем нашу новую модель и Tag
 
 def index(request):
     concepts = ComputerScienceConcept.published.all()  # Получаем только опубликованные концепции
@@ -32,6 +32,24 @@ def cs_detail(request, concept_slug):
         'concept': concept,
     }
     return render(request, 'cs/concept_detail.html', context=data)
+
+def tags_list(request):
+    tags = Tag.objects.all()
+    data = {
+        'title': 'Теги',
+        'tags': tags,
+    }
+    return render(request, 'cs/tags_list.html', context=data)
+
+def concepts_by_tag(request, tag_slug):
+    tag = get_object_or_404(Tag, slug=tag_slug)
+    concepts = ComputerScienceConcept.published.filter(tags=tag)
+    data = {
+        'title': f'Концепции по тегу: {tag.name}',
+        'concepts': concepts,
+        'tag': tag,
+    }
+    return render(request, 'cs/concepts_by_tag.html', context=data)
 
 def archive(request, year):
     if year > 2025:

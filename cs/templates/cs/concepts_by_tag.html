@@ -1,0 +1,16 @@
+{% extends 'cs/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <h2>{{ title }}</h2>
+  <ul class="list-articles">
+      {% for concept in concepts %}
+        <li>
+          <h3><a href="{{ concept.get_absolute_url }}">{{ concept.title }}</a></h3>
+          <p>{{ concept.description|linebreaks|truncatewords:30 }}</p>
+          <p>Сложность: {{ concept.difficulty }}</p>
+        </li>
+      {% endfor %}
+  </ul>
+{% endblock %}

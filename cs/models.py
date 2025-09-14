@@ -1,5 +1,18 @@
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify # Импортируем slugify
+
+# Модель для областей компьютерных наук
+class FieldOfStudy(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Область науки")
+    description = models.TextField(blank=True, verbose_name="Описание области")
+
+    class Meta:
+        verbose_name = "Область науки"
+        verbose_name_plural = "Области науки"
+
+    def __str__(self):
+        return self.name
 
 # Пользовательский менеджер для выборки только опубликованных записей
 class PublishedManager(models.Manager):
@@ -21,6 +34,16 @@ class ComputerScienceConcept(models.Model):
     time_update = models.DateTimeField(auto_now=True, verbose_name="Время обновления")
     is_published = models.BooleanField(choices=Status.choices, default=Status.DRAFT, verbose_name="Публикация")
 
+    # Связь один-ко-многим с FieldOfStudy
+    field_of_study = models.ForeignKey(
+        FieldOfStudy,
+        on_delete=models.CASCADE,
+        related_name='concepts',
+        verbose_name="Область науки",
+        null=True,
+        blank=True
+    )
+
     objects = models.Manager()         # Стандартный менеджер
     published = PublishedManager()       # Пользовательский менеджер для опубликованных записей
 
@@ -35,3 +58,50 @@ class ComputerScienceConcept(models.Model):
 
     def get_absolute_url(self):
         return reverse('concept_detail', kwargs={'concept_slug': self.slug})
+
+# Модель для расширенной информации о концепции (OneToOne)
+class ConceptDetail(models.Model):
+    concept = models.OneToOneField(
+        ComputerScienceConcept,
+        on_delete=models.CASCADE,
+        related_name='detail',
+        verbose_name="Концепция"
+    )
+    core_technologies = models.TextField(blank=True, verbose_name="Ключевые технологии")
+    prerequisites = models.TextField(blank=True, verbose_name="Предварительные условия")
+    estimated_learning_time = models.PositiveIntegerField(verbose_name="Примерное время изучения (часы)", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Детали концепции"
+        verbose_name_plural = "Детали концепций"
+
+    def __str__(self):
+        return f"Детали {self.concept.title}"
+
+# Модель для тегов (Many-to-Many)
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name="Тег")
+    slug = models.SlugField(max_length=50, unique=True, db_index=True, verbose_name="URL тега") # Убрал default='default-slug'
+
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('concepts_by_tag', kwargs={'tag_slug': self.slug})
+
+# Добавляем ManyToManyField в ComputerScienceConcept после определения Tag
+ComputerScienceConcept.add_to_class('tags', models.ManyToManyField(
+    Tag,
+    related_name='concepts',
+    verbose_name="Теги",
+    blank=True
+))
