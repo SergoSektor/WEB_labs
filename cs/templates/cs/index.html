@@ -1,8 +1,18 @@
 {% extends 'cs/base.html' %}
 
-{% block title %}Главная страница{% endblock %}
-{% block heading %}Добро пожаловать на сайт о компьютерных науках!{% endblock %}
+{% block title %}{{ title }}{% endblock %}
+{% block heading %}Добро пожаловать в мир компьютерных наук!{% endblock %}
 
 {% block content %}
-  <p>Здесь вы найдёте информацию о различных областях компьютерных наук.</p>
+  <h2>Наши концепции</h2>
+  <ul class="list-articles">
+      {% for concept in concepts %}
+        <li>
+          <h3>{{ concept.title }}</h3>
+          <p>{{ concept.description|linebreaks|truncatewords:30 }}</p>
+          <p>Сложность: {{ concept.difficulty }}</p>
+          <a href="{{ concept.get_absolute_url }}">Подробнее</a>
+        </li>
+      {% endfor %}
+  </ul>
 {% endblock %}

@@ -1,8 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
+from .models import ComputerScienceConcept # Импортируем нашу новую модель
 
 def index(request):
-    return render(request, 'cs/index.html')
+    concepts = ComputerScienceConcept.published.all()  # Получаем только опубликованные концепции
+    data = {
+        'title': 'Главная страница',
+        'concepts': concepts, # Передаем концепции в шаблон
+    }
+    return render(request, 'cs/index.html', context=data)
 
 def about(request):
     return render(request, 'cs/about.html')
@@ -19,10 +25,13 @@ def cs_list(request):
     ]
     return render(request, 'cs/cs_list.html', {'cs_topics': all_cs_topics})
 
-def cs_detail(request, topic_id):
-    if topic_id > 10:
-        raise Http404("Тема с таким ID не найдена")
-    return HttpResponse(f"<h1>Информация о теме</h1><p>ID: {topic_id}</p>")
+def cs_detail(request, concept_slug):
+    concept = get_object_or_404(ComputerScienceConcept, slug=concept_slug)
+    data = {
+        'title': concept.title,
+        'concept': concept,
+    }
+    return render(request, 'cs/concept_detail.html', context=data)
 
 def archive(request, year):
     if year > 2025:

@@ -1,0 +1,11 @@
+{% extends 'cs/base.html' %}
+
+{% block title %}{{ concept.title }}{% endblock %}
+
+{% block content %}
+  <h2>{{ concept.title }}</h2>
+  <p>Сложность: {{ concept.difficulty }}</p>
+  <div>
+      {{ concept.description|linebreaks }}
+  </div>
+{% endblock %}
