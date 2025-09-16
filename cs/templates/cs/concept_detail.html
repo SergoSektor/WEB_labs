@@ -4,12 +4,20 @@
 
 {% block content %}
   <h2>{{ concept.title }}</h2>
+
+  {# Если для этой концепции загружено изображение, покажем его #}
+  {% if concept.image %}
+    <div style="margin-bottom: 1em;">
+      <img src="{{ concept.image.url }}" alt="{{ concept.title }}" style="max-width:100%; height:auto;">
+    </div>
+  {% endif %}
+
   <p>Сложность: {{ concept.difficulty }}</p>
   {% if concept.field_of_study %}
     <p>Область науки: {{ concept.field_of_study.name }}</p>
   {% endif %}
   <div>
-      {{ concept.description|linebreaks }}
+    {{ concept.description|linebreaks }}
   </div>
 
   {% if concept.tags.all %}

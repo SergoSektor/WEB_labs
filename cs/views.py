@@ -1,14 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
-from .models import ComputerScienceConcept, Tag # Импортируем нашу новую модель и Tag
+from django.conf import settings
+from django.core.files.storage import default_storage
+import os
+import uuid
+
+from .models import ComputerScienceConcept, Tag, FieldOfStudy # Updated model import
+from .forms import ConceptForm, ConceptModelForm, UploadForm # Updated import
 
 def index(request):
-    concepts = ComputerScienceConcept.published.all()  # Получаем только опубликованные концепции
-    data = {
+    concepts = ComputerScienceConcept.published.all()
+    return render(request, 'cs/index.html', {
         'title': 'Главная страница',
-        'concepts': concepts, # Передаем концепции в шаблон
-    }
-    return render(request, 'cs/index.html', context=data)
+        'concepts': concepts,
+    })
 
 def about(request):
     return render(request, 'cs/about.html')
@@ -16,40 +21,19 @@ def about(request):
 def compare(request):
     return render(request, 'cs/compare.html')
 
-def cs_list(request):
-    all_cs_topics = [
-        {'id': 1, 'name': 'Искусственный интеллект', 'description': 'Область компьютерных наук, изучающая методы создания интеллектуальных агентов.'},
-        {'id': 2, 'name': 'Машинное обучение', 'description': 'Подраздел искусственного интеллекта, изучающий методы построения алгоритмов, способных обучаться на данных.'},
-        {'id': 3, 'name': 'Веб-разработка', 'description': 'Процесс создания веб-сайтов и веб-приложений.'},
-        {'id': 4, 'name': 'Базы данных', 'description': 'Организованная коллекция данных, предназначенная для эффективного хранения и извлечения.'},
+def concepts_list(request):
+    all_concepts = [
+        {'id': 1, 'name': 'Data Structures', 'description': 'Fundamental ways to organize data.'},
+        {'id': 2, 'name': 'Algorithms', 'description': 'Step-by-step procedures for calculations.'},
     ]
-    return render(request, 'cs/cs_list.html', {'cs_topics': all_cs_topics})
+    return render(request, 'cs/cs_list.html', {'concepts': all_concepts})
 
-def cs_detail(request, concept_slug):
+def concept_detail(request, concept_slug):
     concept = get_object_or_404(ComputerScienceConcept, slug=concept_slug)
-    data = {
+    return render(request, 'cs/concept_detail.html', {
         'title': concept.title,
         'concept': concept,
-    }
-    return render(request, 'cs/concept_detail.html', context=data)
-
-def tags_list(request):
-    tags = Tag.objects.all()
-    data = {
-        'title': 'Теги',
-        'tags': tags,
-    }
-    return render(request, 'cs/tags_list.html', context=data)
-
-def concepts_by_tag(request, tag_slug):
-    tag = get_object_or_404(Tag, slug=tag_slug)
-    concepts = ComputerScienceConcept.published.filter(tags=tag)
-    data = {
-        'title': f'Концепции по тегу: {tag.name}',
-        'concepts': concepts,
-        'tag': tag,
-    }
-    return render(request, 'cs/concepts_by_tag.html', context=data)
+    })
 
 def archive(request, year):
     if year > 2025:
@@ -65,3 +49,82 @@ def get_params_example(request):
 
 def category(request, cat_id):
     return HttpResponse(f"<h1>Страница категории</h1><p>ID категории: {cat_id}</p>")
+
+def tags_list(request):
+    tags = Tag.objects.all()
+    return render(request, 'cs/tags_list.html', {
+        'title': 'Теги',
+        'tags': tags,
+    })
+
+def add_concept_custom(request):
+    """
+    Пункт 1: форма ConceptForm (несвязанная с моделью) с поддержкой загрузки изображения.
+    """
+    if request.method == 'POST':
+        form = ConceptForm(request.POST, request.FILES)
+        if form.is_valid():
+            cd = form.cleaned_data
+            concept = ComputerScienceConcept.objects.create(
+                title=cd['title'],
+                # slug=cd['title'].lower().replace(' ', '-'), # Слаг теперь генерируется в модели
+                description=cd['description'],
+                difficulty=cd['difficulty'],
+                is_published=ComputerScienceConcept.Status.DRAFT
+            )
+            # Сохраняем изображение, если пользователь его загрузил
+            image = cd.get('image')
+            if image:
+                concept.image = image
+                concept.save()
+            return redirect(concept.get_absolute_url())
+    else:
+        form = ConceptForm()
+
+    return render(request, 'cs/add_concept_custom.html', {'form': form})
+
+
+def add_concept_model(request):
+    """
+    Пункт 2: форма ConceptModelForm (ModelForm) с поддержкой загрузки изображения.
+    """
+    if request.method == 'POST':
+        form = ConceptModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            concept = form.save(commit=False)
+            concept.is_published = ComputerScienceConcept.Status.DRAFT
+            concept.save()
+            form.save_m2m()  # сохраняем M2M-поля (tags) и image
+            return redirect(concept.get_absolute_url())
+    else:
+        form = ConceptModelForm()
+
+    return render(request, 'cs/add_concept_model.html', {'form': form})
+
+
+def upload_file(request):
+    """
+    Обрабатывает UploadForm, сохраняет файл с случайным именем
+    и выводит пользователю ссылку на загруженный файл.
+    """
+    link = None
+
+    if request.method == 'POST':
+        form = UploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            f = form.cleaned_data['file']
+            ext = os.path.splitext(f.name)[1]
+            new_name = f"{uuid.uuid4().hex}{ext}"
+
+            path = os.path.join('uploads', new_name)
+            saved_path = default_storage.save(path, f)
+
+            link = settings.MEDIA_URL + saved_path
+
+    else:
+        form = UploadForm()
+
+    return render(request, 'cs/upload.html', {
+        'form': form,
+        'link': link,
+    })

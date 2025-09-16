@@ -120,6 +120,12 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'cs' / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# URL, по которому будут доступны загруженные файлы
+MEDIA_URL = '/media/'
+
+# Директория на диске, в которую Django будет сохранять загруженные файлы
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

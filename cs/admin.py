@@ -1,31 +1,29 @@
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
-from .models import ComputerScienceConcept, FieldOfStudy, ConceptDetail, Tag
+from django.utils.html import mark_safe # New import
+from django.db.models import ExpressionWrapper, F, DecimalField
+
+from .models import ComputerScienceConcept, FieldOfStudy, ConceptDetail, Tag # Updated model imports
 
 admin.site.site_header = "Панель администрирования"
 admin.site.index_title = "Управление сайтом"
 admin.site.site_title = "Администрирование Computer Science Project"
 
-# Функция для вычисляемого поля "Краткая информация"
+# Пользовательское вычисляемое поле: краткая информация (п.7)
 @admin.display(description="Краткая информация")
 def brief_info(obj):
     return f"Описание: {len(obj.description)} символов" if obj.description else "Нет описания"
 
-# Пользовательское вычисляемое поле: уровень сложности
-@admin.display(description="Уровень сложности")
-def difficulty_level(obj):
+
+# Пользовательское вычисляемое поле: цена с налогом (п.7)
+@admin.display(description="Сложность") # Changed description
+def display_difficulty(obj):
     if obj.difficulty is not None:
-        return f"Сложность: {obj.difficulty}/5"
-    return "Не указана"
+        return f"{obj.difficulty}/5"
+    return "N/A"
 
-# Пользовательское вычисляемое поле: оценочное время изучения (часы)
-@admin.display(description="Оценочное время изучения (часы)")
-def estimated_reading_time(obj):
-    if hasattr(obj, 'detail') and obj.detail.estimated_learning_time is not None:
-        return f"{obj.detail.estimated_learning_time} часов"
-    return "Не указано"
 
-# Кастомный фильтр для статуса публикации
+# Кастомный фильтр для статуса публикации (п.9)
 class PublishedFilter(SimpleListFilter):
     title = "Статус публикации"
     parameter_name = "pub_status"
@@ -43,80 +41,82 @@ class PublishedFilter(SimpleListFilter):
             return queryset.filter(is_published=ComputerScienceConcept.Status.DRAFT)
         return queryset
 
-# Дополнительный кастомный фильтр по диапазону сложности
+
+# Дополнительный кастомный фильтр по диапазону сложности (п.9)
 class DifficultyRangeFilter(SimpleListFilter):
-    title = "Диапазон сложности"  # Заголовок фильтра в админ-панели
-    parameter_name = "difficulty_range"  # Параметр в URL
+    title = "Диапазон сложности"
+    parameter_name = "difficulty_range"
 
     def lookups(self, request, model_admin):
         return [
-            ('easy', 'Легкая (1-2)'),
+            ('low', 'Низкая (1-2)'),
             ('medium', 'Средняя (3)'),
-            ('hard', 'Сложная (4-5)'),
+            ('high', 'Высокая (4-5)'),
         ]
 
     def queryset(self, request, queryset):
-        if self.value() == 'easy':
+        if self.value() == 'low':
             return queryset.filter(difficulty__lte=2)
         elif self.value() == 'medium':
             return queryset.filter(difficulty=3)
-        elif self.value() == 'hard':
+        elif self.value() == 'high':
             return queryset.filter(difficulty__gte=4)
         return queryset
 
-@admin.register(ComputerScienceConcept)
+
+@admin.register(ComputerScienceConcept) # Updated model
 class ComputerScienceConceptAdmin(admin.ModelAdmin):
-    # Настройка формы добавления/редактирования записей:
-    # Поля, отображаемые в форме, перечисляются в указанном порядке.
-    fields = ('title', 'slug', 'description', 'difficulty', 'field_of_study', 'tags', 'is_published')
-    # Автоматическая генерация поля slug на основе поля title.
+    # Поля для формы добавления/редактирования
+    fields = [
+        'title', 'slug', 'description', 'difficulty',
+        'field_of_study', 'tags', 'image', 'image_preview' # Updated fields
+    ]
     prepopulated_fields = {"slug": ("title",)}
-    # Поля, которые доступны только для чтения
-    readonly_fields = ['time_create', 'time_update']
+    readonly_fields = ['time_create', 'time_update', 'image_preview'] # Added image_preview
 
-
+    # Список записей
     list_display = (
-        'id',
-        'title',
-        'field_of_study',
-        'time_create',
-        'is_published',
-        brief_info,
-        difficulty_level,
-        estimated_reading_time,
+        'id', 'title', 'field_of_study', 'time_create',
+        'is_published', brief_info, display_difficulty, # Updated display_difficulty
     )
     list_display_links = ('id', 'title')
     list_editable = ('is_published',)
     ordering = ['-time_create', 'title']
-    search_fields = ('title', 'field_of_study__name')
-    list_filter = [PublishedFilter, 'field_of_study', DifficultyRangeFilter]
     list_per_page = 5
-
-    # Пользовательское действие для установки статуса "Опубликовано"
-    @admin.action(description="Опубликовать выбранные концепции")
-    def set_published(self, request, queryset):
-        count = queryset.update(is_published=ComputerScienceConcept.Status.PUBLISHED)
-        self.message_user(request, f"Статус 'Опубликовано' обновлён для {count} концепций.", messages.SUCCESS)
-
-    # Пользовательское действие для установки статуса "Черновик"
-    @admin.action(description="Снять с публикации выбранные концепции")
-    def set_draft(self, request, queryset):
-        count = queryset.update(is_published=ComputerScienceConcept.Status.DRAFT)
-        self.message_user(request, f"{count} концепций сняты с публикации.", messages.WARNING)
-
+    search_fields = ['title', 'field_of_study__name'] # Updated search fields
+    list_filter = [PublishedFilter, 'field_of_study', DifficultyRangeFilter] # Updated list_filter
     actions = ['set_published', 'set_draft']
 
-@admin.register(FieldOfStudy)
-class FieldOfStudyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description')
-    list_display_links = ('id', 'name')
-    search_fields = ('name',)
+    @admin.action(description="Опубликовать выбранные записи")
+    def set_published(self, request, queryset):
+        count = queryset.update(is_published=ComputerScienceConcept.Status.PUBLISHED)
+        self.message_user(request, f"Статус 'Опубликовано' обновлён для {count} записей.", messages.SUCCESS)
 
-@admin.register(ConceptDetail)
+    @admin.action(description="Снять с публикации выбранные записи")
+    def set_draft(self, request, queryset):
+        count = queryset.update(is_published=ComputerScienceConcept.Status.DRAFT)
+        self.message_user(request, f"{count} записей сняты с публикации.", messages.WARNING)
+
+    @admin.display(description='Превью изображения') # New method
+    def image_preview(self, obj):
+        if obj.image:
+            return mark_safe(f"<img src='{obj.image.url}' style='max-height:200px;' />")
+        return "(нет изображения)"
+
+
+@admin.register(FieldOfStudy) # Updated model
+class FieldOfStudyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description') # Updated fields
+    list_display_links = ('id', 'name')
+    search_fields = ('name', 'description') # Updated search fields
+
+
+@admin.register(ConceptDetail) # Updated model
 class ConceptDetailAdmin(admin.ModelAdmin):
-    list_display = ('id', 'concept', 'core_technologies', 'estimated_learning_time')
-    list_display_links = ('id', 'concept')
-    search_fields = ('concept__title', 'core_technologies')
+    list_display = ('id', 'concept', 'core_technologies', 'prerequisites', 'estimated_learning_time') # Updated fields
+    list_display_links = ('id', 'concept') # Updated link
+    search_fields = ('concept__title', 'core_technologies', 'prerequisites') # Updated search fields
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):

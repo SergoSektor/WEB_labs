@@ -33,6 +33,7 @@ class ComputerScienceConcept(models.Model):
     time_create = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
     time_update = models.DateTimeField(auto_now=True, verbose_name="Время обновления")
     is_published = models.BooleanField(choices=Status.choices, default=Status.DRAFT, verbose_name="Публикация")
+    image = models.ImageField(upload_to='concept_images/%Y/%m/%d/', blank=True, null=True, verbose_name='Изображение') # New field
 
     # Связь один-ко-многим с FieldOfStudy
     field_of_study = models.ForeignKey(
@@ -55,6 +56,17 @@ class ComputerScienceConcept(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+            # Проверяем уникальность слага
+            base_slug = self.slug
+            num = 1
+            while ComputerScienceConcept.objects.filter(slug=self.slug).exists():
+                self.slug = f"{base_slug}-{num}"
+                num += 1
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('concept_detail', kwargs={'concept_slug': self.slug})
