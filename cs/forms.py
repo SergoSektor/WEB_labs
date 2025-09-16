@@ -1,4 +1,8 @@
 from django import forms
+from django.conf import settings
+from django.core.files.storage import default_storage
+import os
+import uuid
 from .models import ComputerScienceConcept, FieldOfStudy, Tag
 
 # 1. Собственный валидатор: запрет цифр в названии
@@ -87,3 +91,11 @@ class UploadForm(forms.Form):
         if f.size > 10 * 1024 * 1024:
             raise forms.ValidationError('Файл слишком большой (больше 10 МБ)')
         return f
+
+    def save_file(self):
+        f = self.cleaned_data['file']
+        ext = os.path.splitext(f.name)[1]
+        new_name = f"{uuid.uuid4().hex}{ext}"
+        path = os.path.join('uploads', new_name)
+        saved_path = default_storage.save(path, f)
+        return settings.MEDIA_URL + saved_path

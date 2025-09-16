@@ -1,10 +1,8 @@
 {% extends 'cs/base.html' %}
-
 {% block title %}{{ title }}{% endblock %}
-{% block heading %}Добро пожаловать в мир компьютерных наук!{% endblock %}
 
 {% block content %}
-  <h2>Наши концепции компьютерных наук</h2>
+  <h2>{{ title }}</h2>
 
   <ul class="list-articles">
     {% for concept in concepts %}

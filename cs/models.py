@@ -5,6 +5,7 @@ from django.utils.text import slugify # Импортируем slugify
 # Модель для областей компьютерных наук
 class FieldOfStudy(models.Model):
     name = models.CharField(max_length=255, verbose_name="Область науки")
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
     description = models.TextField(blank=True, verbose_name="Описание области")
 
     class Meta:
@@ -13,6 +14,20 @@ class FieldOfStudy(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+            # Проверяем уникальность слага
+            base_slug = self.slug
+            num = 1
+            while FieldOfStudy.objects.filter(slug=self.slug).exists():
+                self.slug = f"{base_slug}-{num}"
+                num += 1
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('cs:field_of_study_detail', kwargs={'field_of_study_slug': self.slug})
 
 # Пользовательский менеджер для выборки только опубликованных записей
 class PublishedManager(models.Manager):
@@ -69,7 +84,7 @@ class ComputerScienceConcept(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('concept_detail', kwargs={'concept_slug': self.slug})
+        return reverse('cs:concept_detail', kwargs={'concept_slug': self.slug})
 
 # Модель для расширенной информации о концепции (OneToOne)
 class ConceptDetail(models.Model):

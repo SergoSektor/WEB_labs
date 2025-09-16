@@ -15,11 +15,11 @@
     <header class="py-3">
       <h1>{% block heading %}Компьютерные науки{% endblock %}</h1>
       <nav>
-        <a href="{% url 'home' %}">Главная</a> |
-        <a href="{% url 'about' %}">О нас</a> |
-        <a href="{% url 'compare' %}">Сравнить</a> |
-        <a href="{% url 'concepts' %}">Темы</a> |
-        <a href="{% url 'go_home' %}">На главную</a>
+        <a href="{% url 'cs:home' %}">Главная</a> |
+        <a href="{% url 'cs:about' %}">О нас</a> |
+        <a href="{% url 'cs:add_concept_custom' %}">Добавить (Form)</a> |
+        <a href="{% url 'cs:add_concept_model' %}">Добавить (ModelForm)</a> |
+        <a href="{% url 'cs:upload_file' %}">Загрузка файла</a>
       </nav>
     </header>
 
@@ -28,7 +28,7 @@
       {% get_categories as cats %}
       <ul>
         {% for cat in cats %}
-          <li><a href="{% url 'category' cat.id %}">{{ cat.name }}</a></li>
+          <li><a href="{% url 'cs:field_of_study_detail' field_of_study_slug=cat.slug %}">{{ cat.name }}</a></li>
         {% endfor %}
       </ul>
     </div>
