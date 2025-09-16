@@ -31,13 +31,14 @@ ALLOWED_HOSTS = ['127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'cs.apps.CsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cs.apps.CsConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,20 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Путь к странице входа
+LOGIN_URL = 'users:login'
+# Куда по умолчанию перенаправлять после успешного входа
+LOGIN_REDIRECT_URL = 'cs:home'
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameBackend',
+ ]
+
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST          = 'smtp.yandex.ru'
+EMAIL_PORT          = 587
+EMAIL_USE_TLS       = True
+EMAIL_HOST_USER     = 'sergeipython884@yandex.ru'
+EMAIL_HOST_PASSWORD = 'evletpxmospbaald'
+DEFAULT_FROM_EMAIL  = 'Computer Science Concept <sergeipython884@yandex.ru>'

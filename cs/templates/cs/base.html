@@ -17,9 +17,16 @@
       <nav>
         <a href="{% url 'cs:home' %}">Главная</a> |
         <a href="{% url 'cs:about' %}">О нас</a> |
-        <a href="{% url 'cs:add_concept_custom' %}">Добавить (Form)</a> |
-        <a href="{% url 'cs:add_concept_model' %}">Добавить (ModelForm)</a> |
+        <a href="{% url 'cs:add_concept_custom' %}">Добавить концепцию (Form)</a> |
+        <a href="{% url 'cs:add_concept_model' %}">Добавить концепцию (ModelForm)</a> |
         <a href="{% url 'cs:upload_file' %}">Загрузка файла</a>
+        {% if user.is_authenticated %}
+          | <a href="{% url 'users:profile' %}">Профиль</a>
+          | <a href="{% url 'users:logout' %}">Выход</a>
+        {% else %}
+          | <a href="{% url 'users:login' %}">Вход</a>
+          | <a href="{% url 'users:password_reset' %}">Забыли пароль?</a>
+        {% endif %}
       </nav>
     </header>
 

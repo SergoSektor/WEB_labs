@@ -64,6 +64,9 @@ class ComputerScienceConcept(models.Model):
     published = PublishedManager()       # Пользовательский менеджер для опубликованных записей
 
     class Meta:
+        permissions = [
+            ('can_publish_concept', 'Может публиковать концепцию'),
+        ]
         ordering = ['-time_create']
         indexes = [models.Index(fields=['-time_create'])]
         verbose_name = "Концепция компьютерных наук"

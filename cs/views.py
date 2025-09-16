@@ -3,6 +3,8 @@ from django.views.generic import (
     TemplateView, ListView, DetailView,
     FormView, CreateView, UpdateView, DeleteView
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from .models import ComputerScienceConcept, FieldOfStudy, Tag
 from .forms import ConceptForm, ConceptModelForm, UploadForm
 from .utils import DataMixin
@@ -36,11 +38,12 @@ class ConceptDetailView(DataMixin, DetailView):
         return context
 
 
-class AddConceptCustomView(DataMixin, FormView):
+class AddConceptCustomView(LoginRequiredMixin, DataMixin, FormView):
     form_class = ConceptForm
     template_name = 'cs/add_concept_custom.html'
     success_url = reverse_lazy('cs:home')
     title = 'Добавить (Form)'
+    login_url = reverse_lazy('users:login')
 
     def form_valid(self, form):
         cd = form.cleaned_data
@@ -58,15 +61,16 @@ class AddConceptCustomView(DataMixin, FormView):
         return super().form_valid(form)
 
 
-class ConceptCreateView(DataMixin, CreateView):
+class ConceptCreateView(LoginRequiredMixin, DataMixin, CreateView):
     model = ComputerScienceConcept
     form_class = ConceptModelForm
     template_name = 'cs/add_concept_model.html'
     success_url = reverse_lazy('cs:home')
     title = 'Добавить (ModelForm)'
+    login_url = reverse_lazy('users:login')
 
 
-class ConceptUpdateView(DataMixin, UpdateView):
+class ConceptUpdateView(LoginRequiredMixin, DataMixin, UpdateView):
     model = ComputerScienceConcept
     form_class = ConceptModelForm
     template_name = 'cs/add_concept_model.html'
@@ -74,22 +78,25 @@ class ConceptUpdateView(DataMixin, UpdateView):
     slug_field = 'slug'
     slug_url_kwarg = 'concept_slug'
     title = 'Редактировать концепцию'
+    login_url = reverse_lazy('users:login')
 
 
-class ConceptDeleteView(DataMixin, DeleteView):
+class ConceptDeleteView(LoginRequiredMixin, DataMixin, DeleteView):
     model = ComputerScienceConcept
     template_name = 'cs/concept_confirm_delete.html'
     success_url = reverse_lazy('cs:home')
     slug_field = 'slug'
     slug_url_kwarg = 'concept_slug'
     title = 'Удалить концепцию'
+    login_url = reverse_lazy('users:login')
 
 
-class UploadFileView(DataMixin, FormView):
+class UploadFileView(LoginRequiredMixin, DataMixin, FormView):
     form_class = UploadForm
     template_name = 'cs/upload.html'
     success_url = reverse_lazy('cs:upload_file')
     title = 'Загрузка файла'
+    login_url = reverse_lazy('users:login')
 
     def form_valid(self, form):
         form.save_file()
