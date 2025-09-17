@@ -47,7 +47,7 @@ class ConceptDetailView(DataMixin, DetailView):
             comment.concept = self.object
             comment.author = request.user
             comment.save()
-            return self.get(request, *args, **kwargs) # Перенаправляем на GET запрос после успешной отправки
+            return self.get(request, *args, **kwargs) # Возвращаемся к GET запросу после успешной отправки
         else:
             # Если форма недействительна, возвращаем ее с ошибками
             context = self.get_context_data()
@@ -142,9 +142,44 @@ class FieldOfStudyDetailView(DataMixin, ListView):
         return context
 
 
+class CompareConceptsView(DataMixin, TemplateView):
+    template_name = 'cs/compare.html'
+    title = 'Сравнение концепций'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        concepts = ComputerScienceConcept.published.all()
+        context['concepts'] = concepts
+
+        concept1_slug = self.request.GET.get('concept1')
+        concept2_slug = self.request.GET.get('concept2')
+
+        context['concept1_slug'] = concept1_slug
+        context['concept2_slug'] = concept2_slug
+
+        concept1 = None
+        concept2 = None
+
+        if concept1_slug:
+            try:
+                concept1 = ComputerScienceConcept.published.get(slug=concept1_slug)
+            except ComputerScienceConcept.DoesNotExist:
+                pass
+        if concept2_slug:
+            try:
+                concept2 = ComputerScienceConcept.published.get(slug=concept2_slug)
+            except ComputerScienceConcept.DoesNotExist:
+                pass
+
+        context['concept1'] = concept1
+        context['concept2'] = concept2
+
+        return context
+
+
 class ConceptByTagListView(DataMixin, ListView):
     model = ComputerScienceConcept
-    template_name = 'cs/concepts_by_tag.html'  # Предполагается, что этот шаблон существует
+    template_name = 'cs/concepts_by_tag.html'
     context_object_name = 'concepts'
     paginate_by = 5
 

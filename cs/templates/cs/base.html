@@ -18,6 +18,7 @@
         <li><a href="{% url 'cs:add_concept_custom' %}">Добавить концепцию (Form)</a></li>
         <li><a href="{% url 'cs:add_concept_model' %}">Добавить концепцию (ModelForm)</a></li>
         <li><a href="{% url 'cs:upload_file' %}">Загрузка файла</a></li>
+        <li><a href="{% url 'cs:compare' %}">Сравнение концепций</a></li>
         {% if user.is_authenticated %}
           <li><a href="{% url 'users:profile' %}">Профиль</a></li>
           <li><a href="{% url 'users:logout' %}">Выход</a></li>

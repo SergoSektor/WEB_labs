@@ -5,5 +5,67 @@
 
 {% block content %}
   <p>Выберите две темы для сравнения их характеристик и возможностей.</p>
-  <!-- Здесь можно разместить форму или список для выбора тем -->
+  <form method="get" action=".">
+    <div style="margin-bottom: 15px;">
+      <label for="concept1">Первая тема:</label>
+      <select name="concept1" id="concept1">
+        {% for concept in concepts %}
+          <option value="{{ concept.slug }}" {% if concept1_slug == concept.slug %}selected{% endif %}>{{ concept.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <label for="concept2">Вторая тема:</label>
+      <select name="concept2" id="concept2">
+        {% for concept in concepts %}
+          <option value="{{ concept.slug }}" {% if concept2_slug == concept.slug %}selected{% endif %}>{{ concept.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Сравнить</button>
+  </form>
+
+  {% if concept1 and concept2 %}
+    <h2>Результаты сравнения</h2>
+    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+      <div style="width: 45%; border: 1px solid #ccc; padding: 15px;">
+        <h3>{{ concept1.title }}</h3>
+        <p><strong>Описание:</strong> {{ concept1.description|linebreaksbr }}</p>
+        <p><strong>Сложность:</strong> {{ concept1.difficulty }}</p>
+        <p><strong>Область науки:</strong> {% if concept1.field_of_study %}{{ concept1.field_of_study.name }}{% else %}Не указано{% endif %}</p>
+        <p><strong>Теги:</strong>
+          {% for tag in concept1.tags.all %}
+            {{ tag.name }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+            Нет тегов
+          {% endfor %}
+        </p>
+        {% if concept1.detail %}
+          <p><strong>Ключевые технологии:</strong> {{ concept1.detail.core_technologies }}</p>
+          <p><strong>Предварительные условия:</strong> {{ concept1.detail.prerequisites }}</p>
+          <p><strong>Примерное время изучения:</strong> {{ concept1.detail.estimated_learning_time }} часов</p>
+        {% endif %}
+      </div>
+      <div style="width: 45%; border: 1px solid #ccc; padding: 15px;">
+        <h3>{{ concept2.title }}</h3>
+        <p><strong>Описание:</strong> {{ concept2.description|linebreaksbr }}</p>
+        <p><strong>Сложность:</strong> {{ concept2.difficulty }}</p>
+        <p><strong>Область науки:</strong> {% if concept2.field_of_study %}{{ concept2.field_of_study.name }}{% else %}Не указано{% endif %}</p>
+        <p><strong>Теги:</strong>
+          {% for tag in concept2.tags.all %}
+            {{ tag.name }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+            Нет тегов
+          {% endfor %}
+        </p>
+        {% if concept2.detail %}
+          <p><strong>Ключевые технологии:</strong> {{ concept2.detail.core_technologies }}</p>
+          <p><strong>Предварительные условия:</strong> {{ concept2.detail.prerequisites }}</p>
+          <p><strong>Примерное время изучения:</strong> {{ concept2.detail.estimated_learning_time }} часов</p>
+        {% endif %}
+      </div>
+    </div>
+  {% elif concept1_slug or concept2_slug %}
+    <p>Пожалуйста, выберите две различные темы для сравнения.</p>
+  {% endif %}
 {% endblock %}

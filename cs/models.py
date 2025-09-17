@@ -49,7 +49,7 @@ class ComputerScienceConcept(models.Model):
     time_create = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
     time_update = models.DateTimeField(auto_now=True, verbose_name="Время обновления")
     is_published = models.BooleanField(choices=Status.choices, default=Status.DRAFT, verbose_name="Публикация")
-    image = models.ImageField(upload_to='concept_images/%Y/%m/%d/', blank=True, null=True, verbose_name='Изображение') # New field
+    image = models.ImageField(upload_to='concept_images/%Y/%m/%d/', blank=True, null=True, verbose_name='Изображение')
 
     # Связь один-ко-многим с FieldOfStudy
     field_of_study = models.ForeignKey(
@@ -117,7 +117,7 @@ class ConceptDetail(models.Model):
 # Модель для тегов (Many-to-Many)
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Тег")
-    slug = models.SlugField(max_length=50, unique=True, db_index=True, verbose_name="URL тега") # Убрал default='default-slug'
+    slug = models.SlugField(max_length=50, unique=True, db_index=True, verbose_name="URL тега")
 
     class Meta:
         verbose_name = "Тег"
