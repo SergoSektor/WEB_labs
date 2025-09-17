@@ -1,62 +1,167 @@
 body {
-    background-color: #e0f2f7;
+    background-color: #f8f9fa;
     font-family: 'Roboto', sans-serif;
+    color: #343a40;
 }
 
 #header {
-    background-color: #3f51b5 !important;
-    border-bottom: 3px solid #1a237e;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    background-color: #007bff !important; /* Синий цвет */
+    border-bottom: 3px solid #0056b3; /* Темно-синяя полоса */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #header h1, #header a {
     color: #ffffff !important;
-    font-size: 2.2em;
-    font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    font-size: 1.8em;
+    font-weight: 500;
 }
 
 .module h2, .module caption, .inline-group h2 {
-    background-color: #5c6bc0;
-    color: #ffffff;
-    padding: 10px 15px;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    font-size: 1.3em;
-    border-left: 5px solid #1a237e;
+    background-color: #e9ecef; /* Светло-серый фон */
+    color: #343a40; /* Темный текст */
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    border-left: 4px solid #007bff; /* Синяя полоса слева */
 }
 
 div.breadcrumbs {
-    background-color: #7986cb;
+    background-color: #e2e6ea;
     padding: 10px 15px;
-    border-radius: 6px;
+    border-radius: 5px;
     margin-bottom: 20px;
-    color: #ffffff;
-    font-size: 1.05em;
+    color: #495057;
+    font-size: 0.95em;
+    border: 1px solid #dcdfe3;
+}
+
+div.breadcrumbs a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+div.breadcrumbs a:hover {
+    text-decoration: underline;
 }
 
 .actions button {
-    background-color: #e91e63 !important;
+    background-color: #dc3545 !important; /* Красный для удаления */
     color: #ffffff !important;
     border: none;
-    padding: 8px 15px;
-    margin: 4px;
-    border-radius: 4px;
-    font-size: 1em;
+    padding: 10px 18px;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 0.95em;
     text-transform: uppercase;
     font-weight: 500;
     transition: background-color 0.3s ease;
 }
 
 .actions button:hover {
-    background-color: #c2185b !important;
+    background-color: #c82333 !important;
 }
 
 .button.default, input[type=submit].default {
-    background: #4caf50 !important;
+    background: #28a745 !important; /* Зеленый для сохранения */
     color: #ffffff !important;
+    border-radius: 5px;
+    padding: 10px 18px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
 }
 
 .button.default:hover, input[type=submit].default:hover {
-    background: #388e3c !important;
+    background: #218838 !important;
+}
+
+.object-tools a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 15px;
+    transition: color 0.3s ease;
+}
+
+.object-tools a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Стили для форм */
+.form-row {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.form-row label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-row input[type="text"], .form-row input[type="number"], .form-row textarea, .form-row select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    width: 100%;
+    max-width: 400px; /* Ограничить ширину полей */
+    box-sizing: border-box;
+}
+
+.form-row textarea {
+    min-height: 100px;
+}
+
+.field-box {
+    margin-bottom: 15px;
+}
+
+.aligned label {
+    width: 120px; /* Выравнивание лейблов */
+    padding-right: 10px;
+}
+
+.aligned p.help, .aligned div.help {
+    margin-left: 130px;
+}
+
+/* Media Queries для адаптивности */
+@media (max-width: 768px) {
+    #header h1 {
+        font-size: 1.5em;
+    }
+
+    .module h2, .module caption, .inline-group h2 {
+        font-size: 1em;
+        padding: 8px 10px;
+    }
+
+    div.breadcrumbs {
+        font-size: 0.9em;
+        padding: 8px 10px;
+    }
+
+    .actions button, .button.default, input[type=submit].default {
+        padding: 8px 12px;
+        font-size: 0.85em;
+    }
+
+    .object-tools a {
+        margin-right: 10px;
+        font-size: 0.9em;
+    }
+
+    .form-row input[type="text"], .form-row input[type="number"], .form-row textarea, .form-row select {
+        max-width: 100%;
+    }
+
+    .aligned label {
+        width: 100%;
+        padding-right: 0;
+        margin-bottom: 5px;
+    }
+
+    .aligned p.help, .aligned div.help {
+        margin-left: 0;
+    }
 }

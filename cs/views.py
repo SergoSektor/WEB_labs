@@ -6,7 +6,7 @@ from django.views.generic import (
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import ComputerScienceConcept, FieldOfStudy, Tag
-from .forms import ConceptForm, ConceptModelForm, UploadForm
+from .forms import ConceptForm, ConceptModelForm, UploadForm, CommentForm
 from .utils import DataMixin
 
 
@@ -33,9 +33,26 @@ class ConceptDetailView(DataMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Заголовок страницы — название концепции
-        context['title'] = context['concept'].title
+        concept = self.get_object()
+        context['title'] = concept.title
+        context['comments'] = concept.comments.all()
+        context['comment_form'] = CommentForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.concept = self.object
+            comment.author = request.user
+            comment.save()
+            return self.get(request, *args, **kwargs) # Перенаправляем на GET запрос после успешной отправки
+        else:
+            # Если форма недействительна, возвращаем ее с ошибками
+            context = self.get_context_data()
+            context['comment_form'] = form
+            return self.render_to_response(context)
 
 
 class AddConceptCustomView(LoginRequiredMixin, DataMixin, FormView):
@@ -122,4 +139,23 @@ class FieldOfStudyDetailView(DataMixin, ListView):
         field_of_study = FieldOfStudy.objects.get(slug=field_of_study_slug)
         context['title'] = f"Концепции в области: {field_of_study.name}"
         context['field_of_study'] = field_of_study
+        return context
+
+
+class ConceptByTagListView(DataMixin, ListView):
+    model = ComputerScienceConcept
+    template_name = 'cs/concepts_by_tag.html'  # Предполагается, что этот шаблон существует
+    context_object_name = 'concepts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        tag_slug = self.kwargs['tag_slug']
+        return ComputerScienceConcept.published.filter(tags__slug=tag_slug)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag_slug = self.kwargs['tag_slug']
+        tag = Tag.objects.get(slug=tag_slug)
+        context['title'] = f"Концепции по тегу: {tag.name}"
+        context['tag'] = tag
         return context

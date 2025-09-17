@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     HomeView, AboutView, ConceptDetailView,
     AddConceptCustomView, ConceptCreateView,
-    ConceptUpdateView, ConceptDeleteView, UploadFileView, FieldOfStudyDetailView
+    ConceptUpdateView, ConceptDeleteView, UploadFileView, FieldOfStudyDetailView, ConceptByTagListView
 )
 
 app_name = 'cs'
@@ -16,4 +16,5 @@ urlpatterns = [
     path('delete/<slug:concept_slug>/', ConceptDeleteView.as_view(), name='delete_concept'),
     path('upload/',       UploadFileView.as_view(),  name='upload_file'),
     path('field/<slug:field_of_study_slug>/', FieldOfStudyDetailView.as_view(), name='field_of_study_detail'),
+    path('tag/<slug:tag_slug>/', ConceptByTagListView.as_view(), name='concepts_by_tag'),
 ]

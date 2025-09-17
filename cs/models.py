@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify # Импортируем slugify
+from .utils import resize_image # Импортируем функцию изменения размера изображения
 
 # Модель для областей компьютерных наук
 class FieldOfStudy(models.Model):
@@ -84,6 +85,11 @@ class ComputerScienceConcept(models.Model):
             while ComputerScienceConcept.objects.filter(slug=self.slug).exists():
                 self.slug = f"{base_slug}-{num}"
                 num += 1
+
+        # Обработка изменения размера изображения, если изображение присутствует
+        if self.image and hasattr(self.image, 'file'):
+            self.image = resize_image(self.image)
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -126,7 +132,7 @@ class Tag(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('concepts_by_tag', kwargs={'tag_slug': self.slug})
+        return reverse('cs:concepts_by_tag', kwargs={'tag_slug': self.slug})
 
 # Добавляем ManyToManyField в ComputerScienceConcept после определения Tag
 ComputerScienceConcept.add_to_class('tags', models.ManyToManyField(
@@ -135,3 +141,21 @@ ComputerScienceConcept.add_to_class('tags', models.ManyToManyField(
     verbose_name="Теги",
     blank=True
 ))
+
+# Модель для комментариев
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class Comment(models.Model):
+    concept   = models.ForeignKey(ComputerScienceConcept, on_delete=models.CASCADE, related_name='comments', verbose_name='Концепция')
+    author  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Автор')
+    text    = models.TextField(verbose_name='Комментарий')
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created']
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
+
+    def __str__(self):
+        return f"Комментарий от {self.author} к {self.concept.title}"

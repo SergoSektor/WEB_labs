@@ -56,7 +56,7 @@ ROOT_URLCONF = 'cs_ty.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'cs' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -146,5 +146,5 @@ EMAIL_HOST          = 'smtp.yandex.ru'
 EMAIL_PORT          = 587
 EMAIL_USE_TLS       = True
 EMAIL_HOST_USER     = 'sergeipython884@yandex.ru'
-EMAIL_HOST_PASSWORD = 'evletpxmospbaald'
+EMAIL_HOST_PASSWORD = 'pass'
 DEFAULT_FROM_EMAIL  = 'Computer Science Concept <sergeipython884@yandex.ru>'

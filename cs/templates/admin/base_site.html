@@ -1,6 +1,15 @@
 {% extends "admin/base.html" %}
 {% load static %}
+
+{% block title %}{{ title }} | Администрация Компьютерные науки{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Администрация Компьютерные науки</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
 {% block extrastyle %}
-    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}" />
-    <link rel="stylesheet" href="{% static 'cs/css/admin.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'cs/css/admin.css' %}" />
 {% endblock %}

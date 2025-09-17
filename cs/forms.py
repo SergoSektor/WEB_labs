@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 import os
 import uuid
-from .models import ComputerScienceConcept, FieldOfStudy, Tag
+from .models import ComputerScienceConcept, FieldOfStudy, Tag, Comment
 
 # 1. Собственный валидатор: запрет цифр в названии
 def validate_title_no_digits(value):
@@ -99,3 +99,15 @@ class UploadForm(forms.Form):
         path = os.path.join('uploads', new_name)
         saved_path = default_storage.save(path, f)
         return settings.MEDIA_URL + saved_path
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Ваш комментарий'}),
+        }
+        labels = {
+            'text': 'Комментарий',
+        }

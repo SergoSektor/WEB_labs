@@ -28,6 +28,28 @@
     </p>
   {% endif %}
 
+  <h3>Комментарии:</h3>
+  {% if user.is_authenticated %}
+    <form action="" method="post">
+      {% csrf_token %}
+      {{ comment_form.as_p }}
+      <button type="submit">Отправить комментарий</button>
+    </form>
+  {% else %}
+    <p>Чтобы оставить комментарий, пожалуйста, <a href="{% url 'users:login' %}">войдите</a>.</p>
+  {% endif %}
+
+  {% if comments %}
+    {% for comment in comments %}
+      <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+        <p><strong>{{ comment.author.username }}</strong> ({{ comment.created|date:"d.m.Y H:i" }}):</p>
+        <p>{{ comment.text|linebreaksbr }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Пока нет комментариев.</p>
+  {% endif %}
+
   {% if concept.detail %}
     <h3>Дополнительная информация:</h3>
     <p>Ключевые технологии: {{ concept.detail.core_technologies }}</p>
